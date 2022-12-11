@@ -2,8 +2,10 @@ package log
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
+	"github.com/dustin/go-humanize"
 	"github.com/fioncat/wshare/config"
 	"github.com/fioncat/wshare/pkg/osutil"
 	"github.com/sirupsen/logrus"
@@ -60,4 +62,9 @@ func Get() *logrus.Logger {
 		panic("internal: please call log.Init before using Get()")
 	}
 	return logger
+}
+
+func BytesSize(data []byte) string {
+	size := humanize.IBytes(uint64(len(data)))
+	return strings.Replace(size, " ", "", 1)
 }
