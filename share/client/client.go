@@ -3,9 +3,12 @@ package client
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"net/http"
+	"net/url"
 	"reflect"
 
+	"github.com/fioncat/wshare/config"
 	"github.com/fioncat/wshare/pkg/log"
 	"github.com/fioncat/wshare/share"
 	"github.com/gorilla/websocket"
@@ -22,6 +25,33 @@ type Client struct {
 	history *share.History
 
 	url string
+}
+
+func New() (*Client, error) {
+	u := url.URL{
+		Scheme: "ws",
+		Host:   config.Get().Server,
+		Path:   "/share",
+	}
+	url := u.String()
+
+	var header http.Header
+	if config.Get().Name != "" {
+		header = http.Header{
+			"client-name": []string{config.Get().Name},
+		}
+	}
+
+	his, err := share.OpenHistory()
+	if err != nil {
+		return nil, fmt.Errorf("failed to init history: %v", err)
+	}
+
+	return &Client{
+		header:  header,
+		history: his,
+		url:     url,
+	}, nil
 }
 
 func (c *Client) Start() {

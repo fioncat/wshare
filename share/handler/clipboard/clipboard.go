@@ -13,6 +13,14 @@ import (
 
 type Handler struct{}
 
+func New() (share.Handler, error) {
+	err := clipboard.Init()
+	if err != nil {
+		return nil, fmt.Errorf("failed to init clipboard driver: %v", err)
+	}
+	return &Handler{}, nil
+}
+
 func (h *Handler) Notify(ch chan *share.Packet) {
 	ctx := context.Background()
 	imageWatcher := clipboard.Watch(ctx, clipboard.FmtImage)
