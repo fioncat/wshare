@@ -21,6 +21,7 @@ var Root = &cobra.Command{
 
 func main() {
 	Root.AddCommand(Config, EditConfig)
+	Root.AddCommand(Start)
 
 	err := Root.Execute()
 	if err != nil {

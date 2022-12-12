@@ -1,4 +1,4 @@
-package wshared
+package main
 
 import (
 	"fmt"

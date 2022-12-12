@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"time"
 
 	"github.com/fioncat/wshare/config"
 	"github.com/fioncat/wshare/pkg/log"
@@ -160,6 +161,7 @@ func (c *Client) dial() *websocket.Conn {
 		conn, _, err := websocket.DefaultDialer.Dial(c.url, c.header)
 		if err != nil {
 			log.Get().Errorf("failed to dial server: %v, we will retry in %d seconds", err, retrySeconds)
+			time.Sleep(time.Second * time.Duration(retrySeconds))
 			// Increment retrySeconds, so that if the server is
 			// disconnected for a long time, do not retry too much.
 			// But retrySeconds won't be bigger than max threshold.

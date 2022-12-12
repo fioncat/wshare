@@ -7,7 +7,6 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/fioncat/wshare/config"
-	"github.com/fioncat/wshare/pkg/osutil"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,17 +27,11 @@ func Init() error {
 }
 
 func doInit(cfg *config.Log) error {
-	output, err := osutil.OpenAppend(cfg.Path)
-	if err != nil {
-		return fmt.Errorf("failed to open log file: %v", err)
-	}
-
 	logger = logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 		DisableColors:   true,
 	})
-	logger.SetOutput(output)
 
 	switch cfg.Level {
 	case "", "info":
