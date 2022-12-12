@@ -110,6 +110,7 @@ var Start = &cobra.Command{
 		}
 		defer dctx.Release()
 
+		share.RegisterHandler("clipboard", clipboard.New)
 		err = share.InitHandlers()
 		if err != nil {
 			return err
@@ -119,8 +120,6 @@ var Start = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
-		share.RegisterHandler("clipboard", clipboard.New)
 
 		client.Start()
 		return nil

@@ -68,15 +68,16 @@ func (c *Client) Start() {
 			Chan: reflect.ValueOf(ch),
 		})
 	}
+	selectCases = append(selectCases, reflect.SelectCase{})
 
 reentry:
 	conn := c.dial()
 
 	done := make(chan struct{})
-	selectCases = append(selectCases, reflect.SelectCase{
+	selectCases[len(selectCases)-1] = reflect.SelectCase{
 		Dir:  reflect.SelectRecv,
 		Chan: reflect.ValueOf(done),
-	})
+	}
 	go func() {
 		defer close(done)
 		log.Get().Info("begin to recv message")

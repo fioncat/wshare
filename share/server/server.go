@@ -131,3 +131,9 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func Start(addr string) error {
+	log.Get().Infof("server start listen on %s", addr)
+	http.HandleFunc("/share", handle)
+	return http.ListenAndServe(addr, nil)
+}
