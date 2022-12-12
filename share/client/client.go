@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"net/http"
+	"reflect"
 
 	"github.com/fioncat/wshare/pkg/log"
 	"github.com/fioncat/wshare/share"
@@ -24,15 +25,27 @@ type Client struct {
 }
 
 func (c *Client) Start() {
-	notify := make(chan *share.Packet, 800)
-	for _, handler := range share.ListHandlers() {
-		handler.Notify(notify)
+	handlers := share.ListHandlers()
+	handlerNames := make([]string, 0, len(handlers))
+	selectCases := make([]reflect.SelectCase, 0, len(handlers)+1)
+	for name, handler := range handlers {
+		ch := make(chan *share.Packet, 500)
+		go handler.Notify(ch)
+		handlerNames = append(handlerNames, name)
+		selectCases = append(selectCases, reflect.SelectCase{
+			Dir:  reflect.SelectRecv,
+			Chan: reflect.ValueOf(ch),
+		})
 	}
 
 reentry:
 	conn := c.dial()
 
 	done := make(chan struct{})
+	selectCases = append(selectCases, reflect.SelectCase{
+		Dir:  reflect.SelectRecv,
+		Chan: reflect.ValueOf(done),
+	})
 	go func() {
 		defer close(done)
 		log.Get().Info("begin to recv message")
@@ -85,26 +98,29 @@ reentry:
 	}()
 
 	for {
-		select {
-		case <-done:
+		chosen, value, _ := reflect.Select(selectCases)
+		if chosen == len(selectCases)-1 {
 			goto reentry
-
-		case pack := <-notify:
-			var buffer bytes.Buffer
-			encoder := gob.NewEncoder(&buffer)
-			err := encoder.Encode(pack)
-			if err != nil {
-				log.Get().Errorf("failed to encode packet: %v", err)
-				continue
-			}
-			err = conn.WriteMessage(websocket.BinaryMessage, buffer.Bytes())
-			if err != nil {
-				log.Get().Errorf("failed to send data to server: %v", err)
-				continue
-			}
-			size := log.BytesSize(pack.Data)
-			log.Get().Infof("%s: send %s data to server, meta: %s", pack.Type, size, string(pack.Metadata))
 		}
+
+		handler := handlerNames[chosen]
+		pack := value.Interface().(*share.Packet)
+		pack.Type = handler
+
+		var buffer bytes.Buffer
+		encoder := gob.NewEncoder(&buffer)
+		err := encoder.Encode(pack)
+		if err != nil {
+			log.Get().Errorf("failed to encode packet: %v", err)
+			continue
+		}
+		err = conn.WriteMessage(websocket.BinaryMessage, buffer.Bytes())
+		if err != nil {
+			log.Get().Errorf("failed to send data to server: %v", err)
+			continue
+		}
+		size := log.BytesSize(pack.Data)
+		log.Get().Infof("%s: send %s data to server, meta: %s", pack.Type, size, string(pack.Metadata))
 	}
 }
 

@@ -9,16 +9,10 @@ import (
 )
 
 type Packet struct {
-	// Type is the handler name to handle this packet.
 	Type string
 
-	// Metadata is the handler metadata for this packet. The style and
-	// meaning of metadata are completely determined by the handler.
-	// For example, Metadata can be a JSON type object.
 	Metadata []byte
 
-	// Data is the main packet data to share.
-	// For example, Data can be a clipboard text.
 	Data []byte
 }
 
@@ -66,10 +60,6 @@ func GetHandler(name string) Handler {
 	return handlers[name]
 }
 
-func ListHandlers() []Handler {
-	hs := make([]Handler, 0, len(handlers))
-	for _, h := range handlers {
-		hs = append(hs, h)
-	}
-	return hs
+func ListHandlers() map[string]Handler {
+	return handlers
 }

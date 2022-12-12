@@ -106,9 +106,15 @@ type Config struct {
 	Name   string `yaml:"name" json:"name"`
 	Server string `yaml:"server" validate:"required" json:"server"`
 
+	Clipboard *Clipboard `yaml:"clipboard" json:"clipboard"`
+
 	History string `yaml:"history" validate:"required" json:"history"`
 
 	Log *Log `yaml:"log" validate:"dive" json:"log"`
+}
+
+type Clipboard struct {
+	Readonly bool `yaml:"readonly" json:"readonly"`
 }
 
 type Log struct {
