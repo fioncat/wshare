@@ -4,8 +4,8 @@ build-server:
 
 .PHONY: build
 build:
-	go build -o ./bin/wshare ./cmd/wshare
+	CGO_ENABLED=1 go build -o ./bin/wshare ./cmd/wshare
 
 .PHONY: install
 install:
-	go install ./cmd/wshare
+	CGO_ENABLED=1 go install ./cmd/wshare
