@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/fioncat/wshare/pkg/osutil"
 	"github.com/go-playground/validator/v10"
 	"github.com/iancoleman/strcase"
 	"github.com/imdario/mergo"
@@ -207,4 +208,14 @@ func Path() string {
 		panic("internal: please call config.Init before using Path()")
 	}
 	return path
+}
+
+func LocalFile(name string) (string, error) {
+	localPath := filepath.Join(HomeDir(), ".local", "share", "wshare")
+	err := osutil.EnsureDir(localPath)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(localPath, name), nil
 }

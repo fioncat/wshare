@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -21,18 +20,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func localPath() (string, error) {
-	localPath := filepath.Join(config.HomeDir(), ".local", "share", "wshare")
-	err := osutil.EnsureDir(localPath)
-	return localPath, err
-}
-
 func pidPath() (string, error) {
-	local, err := localPath()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(local, "daemon.pid"), nil
+	return config.LocalFile("daemon.pid")
 }
 
 func getPid() (int, error) {
