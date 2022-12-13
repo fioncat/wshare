@@ -63,6 +63,15 @@ var Stop = &cobra.Command{
 	},
 }
 
+var Restart = &cobra.Command{
+	Use:   "restart",
+	Short: "Restart daemon",
+
+	RunE: func(_ *cobra.Command, _ []string) error {
+		return getDaemon().Restart(startClient)
+	},
+}
+
 var Logs = &cobra.Command{
 	Use:   "logs",
 	Short: "Show daemon logs",
