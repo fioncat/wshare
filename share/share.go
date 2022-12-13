@@ -28,7 +28,11 @@ type History struct {
 }
 
 func OpenHistory() (*History, error) {
-	dst, err := osutil.OpenAppend(config.Get().History)
+	path, err := config.LocalFile("history")
+	if err != nil {
+		return nil, err
+	}
+	dst, err := osutil.OpenAppend(path)
 	if err != nil {
 		return nil, err
 	}

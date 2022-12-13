@@ -109,8 +109,6 @@ type Config struct {
 
 	Clipboard *Clipboard `yaml:"clipboard" json:"clipboard"`
 
-	History string `yaml:"history" validate:"required" json:"history"`
-
 	Log *Log `yaml:"log" validate:"dive" json:"log"`
 }
 
@@ -120,7 +118,6 @@ type Clipboard struct {
 
 type Log struct {
 	Level string `yaml:"level" validate:"required" json:"level"`
-	Path  string `yaml:"path" validate:"required" json:"path"`
 }
 
 var (
@@ -140,18 +137,6 @@ func Init() error {
 }
 
 func doInit() error {
-	defer func() {
-		if instance == nil {
-			return
-		}
-
-		expandEnv := func(s *string) {
-			*s = os.ExpandEnv(*s)
-		}
-		expandEnv(&instance.History)
-		expandEnv(&instance.Log.Path)
-	}()
-
 	var err error
 	homeDir, err = os.UserHomeDir()
 	if err != nil {

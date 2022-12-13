@@ -8,4 +8,3 @@ clipboard:
 
 log:
   level: info
-  path: $HOME/.local/share/wshare/daemon.log

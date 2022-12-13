@@ -1,15 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/fioncat/wshare/config"
+	"github.com/fioncat/wshare/pkg/log"
+	"github.com/fioncat/wshare/pkg/osutil"
 	"github.com/spf13/cobra"
 )
 
 var Root = &cobra.Command{
 	Use:   "wshare",
 	Short: "wshare manager",
+
+	PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
+		err := config.Init()
+		if err != nil {
+			return err
+		}
+		return log.Init()
+	},
 
 	SilenceErrors: true,
 	SilenceUsage:  true,
@@ -26,7 +34,6 @@ func main() {
 
 	err := Root.Execute()
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		os.Exit(1)
+		osutil.Exit(err)
 	}
 }
