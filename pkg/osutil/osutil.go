@@ -93,3 +93,8 @@ func WalkDirs(root string) ([]string, error) {
 	})
 	return dirs, err
 }
+
+func Exit(err error) {
+	fmt.Printf("error: %v\n", err)
+	os.Exit(1)
+}

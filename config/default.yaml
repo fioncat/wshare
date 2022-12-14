@@ -3,9 +3,12 @@ server: "127.0.0.1:6679"
 
 history: $HOME/.local/share/wshare/history
 
+password: "wshare123"
+
 clipboard:
   readonly: false
 
+listen: ":6679"
+
 log:
   level: info
-  path: $HOME/.local/share/wshare/daemon.log
