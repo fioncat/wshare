@@ -111,6 +111,8 @@ type Config struct {
 
 	Clipboard *Clipboard `yaml:"clipboard" json:"clipboard"`
 
+	Listen string `yaml:"listen" json:"listen"`
+
 	Log *Log `yaml:"log" validate:"dive" json:"log"`
 }
 

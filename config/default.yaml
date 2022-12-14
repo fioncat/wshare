@@ -8,5 +8,7 @@ password: "wshare123"
 clipboard:
   readonly: false
 
+listen: ":6679"
+
 log:
   level: info
