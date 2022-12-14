@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -15,8 +16,28 @@ var editors = []string{
 	"nvim", "vim", "vi",
 }
 
+var Root = &cobra.Command{
+	Use:   "wshare-config",
+	Short: "Show config values in json style",
+
+	RunE: func(_ *cobra.Command, _ []string) error {
+		err := config.Init()
+		if err != nil {
+			return err
+		}
+		cfg := config.Get()
+		data, err := json.MarshalIndent(cfg, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to marshal config: %v", err)
+		}
+		fmt.Printf("Use config: %s\n", config.Path())
+		fmt.Println(string(data))
+		return nil
+	},
+}
+
 var EditConfig = &cobra.Command{
-	Use:   "edit-config",
+	Use:   "edit",
 	Short: "Open editor to edit config",
 
 	RunE: func(_ *cobra.Command, _ []string) error {
@@ -60,4 +81,13 @@ var EditConfig = &cobra.Command{
 
 		return cmd.Run()
 	},
+}
+
+func main() {
+	Root.AddCommand(EditConfig)
+
+	err := Root.Execute()
+	if err != nil {
+		osutil.Exit(err)
+	}
 }
