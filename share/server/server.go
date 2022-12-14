@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/fioncat/wshare/pkg/log"
+	"github.com/fioncat/wshare/share"
 	"github.com/gorilla/websocket"
 )
 
@@ -105,6 +106,13 @@ func handle(w http.ResponseWriter, r *http.Request) {
 			if mt != websocket.BinaryMessage {
 				continue
 			}
+
+			_, err = share.DecodePack(data)
+			if err != nil {
+				logger.Errorf("failed to decode packet: %v", err)
+				continue
+			}
+
 			size := log.BytesSize(data)
 			logger.Infof("recv %s data", size)
 			distributor.Notify(name, data)
