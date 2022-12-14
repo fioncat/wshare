@@ -2,12 +2,14 @@ package share
 
 import (
 	"bytes"
+	"encoding/gob"
 	"fmt"
 	"io"
 	"sync"
 	"time"
 
 	"github.com/fioncat/wshare/config"
+	"github.com/fioncat/wshare/pkg/crypto"
 	"github.com/fioncat/wshare/pkg/log"
 	"github.com/fioncat/wshare/pkg/osutil"
 	"github.com/sirupsen/logrus"
@@ -19,6 +21,37 @@ type Packet struct {
 	Metadata []byte
 
 	Data []byte
+}
+
+func (p *Packet) Encode() ([]byte, error) {
+	var buff bytes.Buffer
+	encoder := gob.NewEncoder(&buff)
+	err := encoder.Encode(p)
+	if err != nil {
+		return nil, err
+	}
+
+	data := buff.Bytes()
+	return crypto.Encrypt(data), nil
+}
+
+func DecodePack(data []byte) (*Packet, error) {
+	data, err := crypto.Decrypt(data)
+	if err != nil {
+		return nil, fmt.Errorf("decrypt data failed: %v", err)
+	}
+
+	var buff bytes.Buffer
+	buff.Write(data)
+	decoder := gob.NewDecoder(&buff)
+
+	var p Packet
+	err = decoder.Decode(&p)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode packet: %v", err)
+	}
+
+	return &p, nil
 }
 
 type History struct {

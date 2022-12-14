@@ -1,8 +1,6 @@
 package client
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -91,14 +89,9 @@ reentry:
 				continue
 			}
 
-			var buff bytes.Buffer
-			buff.Write(data)
-			decoder := gob.NewDecoder(&buff)
-
-			var pack share.Packet
-			err = decoder.Decode(&pack)
+			pack, err := share.DecodePack(data)
 			if err != nil {
-				log.Get().Errorf("failed to decode packet from server: %v", err)
+				log.Get().Error(err)
 				continue
 			}
 
@@ -119,7 +112,7 @@ reentry:
 			ctx := &share.Context{
 				Entry:   entry,
 				History: c.history,
-				Pack:    &pack,
+				Pack:    pack,
 			}
 			err = handler.Recv(ctx)
 			if err != nil {
@@ -139,14 +132,13 @@ reentry:
 		pack := value.Interface().(*share.Packet)
 		pack.Type = handler
 
-		var buffer bytes.Buffer
-		encoder := gob.NewEncoder(&buffer)
-		err := encoder.Encode(pack)
+		data, err := pack.Encode()
 		if err != nil {
 			log.Get().Errorf("failed to encode packet: %v", err)
 			continue
 		}
-		err = conn.WriteMessage(websocket.BinaryMessage, buffer.Bytes())
+
+		err = conn.WriteMessage(websocket.BinaryMessage, data)
 		if err != nil {
 			log.Get().Errorf("failed to send data to server: %v", err)
 			continue

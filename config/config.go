@@ -107,6 +107,8 @@ type Config struct {
 	Name   string `yaml:"name" json:"name"`
 	Server string `yaml:"server" validate:"required" json:"server"`
 
+	Password string `yaml:"password" json:"password"`
+
 	Clipboard *Clipboard `yaml:"clipboard" json:"clipboard"`
 
 	Log *Log `yaml:"log" validate:"dive" json:"log"`
