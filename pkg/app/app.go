@@ -92,7 +92,7 @@ func CreateManager(name, full string, start func() error) *cobra.Command {
 				return fmt.Errorf("failed to init password: %v", err)
 			}
 
-			d, err = daemon.New("wshared")
+			d, err = daemon.New(name)
 			if err != nil {
 				return fmt.Errorf("failed to init daemon: %v", err)
 			}
